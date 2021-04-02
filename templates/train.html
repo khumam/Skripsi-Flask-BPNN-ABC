@@ -1,0 +1,149 @@
+{% extends "base/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item"><a href="#"><span class="fas fa-home"></span></a></li>
+              <li class="breadcrumb-item active" aria-current="page">Latih Dataset</li>
+            </ol>
+        </nav>
+        <h2 class="h4">Latih Dataset</h2>
+        <p class="mb-0">Pelatihan dataset dilakukan dengan mengisi dataset di bawah</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.history.back();">Kembali</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-light shadow-sm">
+            <div class="card-body">
+                <h4>Detail Pelatihan</h4>
+                <hr>
+                <p>Pastikan dataset dalam bentuk .csv. Total dataset akan dibagi menjadi 70% data pelatihan dan 70% data validasi.</p>
+                <form method="POST" enctype="multipart/form-data" id="train_data">
+                    <div class="form-group">
+                        <label for="train_type">Algoritma Pelatihan</label>
+                        <select name="train_type" id="train_type" class="form-control" required>
+                            <option value="bpnn">Backpropagation Neural Network</option>
+                            <option value="bpnnabc">Backpropagation Neural Network + Artificial Bee Colony</option>
+                        </select>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="dataset_source">Dataset</label>
+                        <input type="file" name="dataset_source" id="dataset_source" required class="form-control" placeholder="Sumber dataset">
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="epoch">Epoh</label>
+                                <input type="number" name="epoch" id="epoch" required placeholder="Epoh pelatihan" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="hidden_neuron">Hidden Neuron</label>
+                                <input type="number" name="hidden_neuron" id="hidden_neuron" required placeholder="Epoh pelatihan" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="learning_rate">Learning Rate</label>
+                                <input type="number" name="learning_rate" id="learning_rate" required placeholder="Learning rate" class="form-control" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <button class="btn btn-primary px-4" type="button" id="train_btn">Latih dataset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-5" id="result_train" style="display: none;">
+    <div class="col-md-12" id="result_loading" style="display: none;">
+        <div class="card border-light shadow-sm">
+            <div class="card-body text-center">
+                <img src="\static\assets\img\loading.gif" alt="Loading" height="50">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" id="result_field" style="display: none;">
+        <div class="card border-light shadow-sm">
+            <div class="card-body">
+                <h4>Hasil Pelatihan</h4>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <div class="alert alert-success">Akurasi <span id="accuracy"></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="alert alert-danger">Loss <span id="loss"></span></div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <p>Tingkat akurasi selama pelatihan</p>
+                        <img alt="Fig akurasi" id="figaccuracy" class="img-fluid">
+                    </div>
+                    <div class="col">
+                        <p>Tingkat error selama pelatihan</p>
+                        <img alt="Fig akurasi" id="figloss" class="img-fluid">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <div class="alert alert-primary"><a id="datatraining">Data Training</a></div>
+                    </div>
+                    <div class="col">
+                        <div class="alert alert-success"><a id="datatesting">Data Testing</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $('#train_btn').on('click', function() {
+        $('#result_train').show();
+        $('#result_loading').show();
+        var data = new FormData();
+        data.append('train_type', $('#train_type').val());
+        data.append('epoch', $('#epoch').val());
+        data.append('learning_rate', $('#learning_rate').val());
+        data.append('hidden_neuron', $('#hidden_neuron').val());
+        data.append('dataset_source', $('#dataset_source')[0].files[0]);
+
+        $.ajax({
+            type: 'POST',
+            url: '/training',
+            data: data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            async: true,
+            success: function (data) {
+                $('#accuracy').html(data.accuracy);
+                $('#loss').html(data.loss);
+                $('#result_loading').hide();
+                $('#result_field').show();
+                $('#figaccuracy').attr('src', 'static/fig/akurasi-' + data.filename + '.png');
+                $('#figloss').attr('src', 'static/fig/error-' + data.filename + '.png');
+                $('#datatraining').attr('href', 'report/train-' + data.filename + '.csv');
+                $('#datatesting').attr('href', 'report/testing-' + data.filename + '.csv');
+                console.log(data);
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    })
+</script>
+{% endblock javascripts %}
