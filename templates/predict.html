@@ -1,0 +1,151 @@
+{% extends "base/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item"><a href="#"><span class="fas fa-home"></span></a></li>
+              <li class="breadcrumb-item active" aria-current="page">Prediksi</li>
+            </ol>
+        </nav>
+        <h2 class="h4">Prediksi Tingkat Aerosol</h2>
+        <p class="mb-0">Untuk memprediksikan tingkat aerosol, harap isi semua kolom di bawah</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.history.back();">Kembali</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-light shadow-sm">
+            <div class="card-body">
+                <h4>Prediksi Tingkat Aerosol</h4>
+                <hr>
+                <form method="POST" id="predict_data">
+                    <div class="form-group">
+                        <label for="model">Model</label>
+                        <select name="model" id="model" class="form-control" required>
+                            <option value="04-02-2021-16-17-11">04-02-2021-16-17-11</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mt-3">
+                                <label for="dewp">DEWP</label>
+                                <input type="number" id="dewp" name="dewp" class="form-control" required placeholder="Dewp" step="0.01">
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="humi">HUMI</label>
+                                <input type="number" id="humi" name="humi" class="form-control" required placeholder="humi" step="0.01">
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="pres">PRES</label>
+                                <input type="number" id="pres" name="pres" class="form-control" required placeholder="pres" step="0.01">
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="temp">TEMP</label>
+                                <input type="number" id="temp" name="temp" class="form-control" required placeholder="temp" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mt-3">
+                                <label for="cbwd">CBWD</label>
+                                <select name="cbwd" id="cbwd" class="form-control" required>
+                                    <option value="0">Utara</option>
+                                    <option value="1">Timur Laut</option>
+                                    <option value="2">Timur</option>
+                                    <option value="3">Tenggara</option>
+                                    <option value="4">Selatan</option>
+                                    <option value="5">Barat Daya</option>
+                                    <option value="6">Barat</option>
+                                    <option value="7">Barat Laut</option>
+                                    <option value="8">Tenang dan beragam</option>
+                                </select>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="iws">IWS</label>
+                                <input type="number" id="iws" name="iws" class="form-control" required placeholder="iws" step="0.01">
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="precipitation">Precipitation</label>
+                                <input type="number" id="precipitation" name="precipitation" class="form-control" required placeholder="precipitation" step="0.01">
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="iprec">iprec</label>
+                                <input type="number" id="iprec" name="iprec" class="form-control" required placeholder="iprec" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <button class="btn btn-primary px-4" type="button" id="predict_btn">Prediksi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-5" id="result_train" style="display: none;">
+    <div class="col-md-12" id="result_loading" style="display: none;">
+        <div class="card border-light shadow-sm">
+            <div class="card-body text-center">
+                <img src="\static\assets\img\loading.gif" alt="Loading" height="50">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" id="result_field" style="display: none;">
+        <div class="card border-light shadow-sm">
+            <div class="card-body">
+                <h4>Hasil Prediksi</h4>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <div class="alert alert-primary"><span id="detail"></span></div>
+                    </div>
+                    <div class="col">
+                        <div class="alert alert-success"><span id="result"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    $('#predict_btn').on('click', function() {
+        $('#result_train').show();
+        $('#result_loading').show();
+        var data = $('#predict_data').serialize()
+
+        $.ajax({
+            type: 'POST',
+            url: '/predicting',
+            data: data,
+            cache: false,
+            async: true,
+            success: function (data) {
+                $('#result_loading').hide();
+                $('#result_field').show();
+                $('#detail').html(`
+                    DEWP: ${data.inputs[0]}<br>
+                    HUMI: ${data.inputs[1]}<br>
+                    PRES: ${data.inputs[2]}<br>
+                    TEMP: ${data.inputs[3]}<br>
+                    CBWD: ${data.inputs[4]}<br>
+                    IWS: ${data.inputs[5]}<br>
+                    PREC: ${data.inputs[6]}<br>
+                    IPREC: ${data.inputs[7]}<br>
+                `)
+                $('#result').html(data.result[0][0])
+                console.log(data);
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    })
+</script>
+{% endblock javascripts %}

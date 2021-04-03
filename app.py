@@ -8,6 +8,8 @@ from BpnnAbc import BpnnAbc
 import random
 from datetime import datetime
 import matplotlib.pyplot as pt
+import json
+import math
 
 app = Flask(__name__)
 
@@ -99,6 +101,38 @@ def saveGraph(filename, type):
         return pt.savefig('static/fig/error-' + filename + '.png')
 
 
+def predictData(inputs, credentials):
+    weights_ih = np.array(credentials['weights_ih'])
+    weights_ho = np.array(credentials['weights_ho'])
+    bias_h = np.array(credentials['bias_h'])
+    bias_o = np.array(credentials['bias_o'])
+
+    inputs = np.array(inputs)
+    hidden = np.dot(inputs, weights_ih)
+    hidden = hidden + bias_h
+
+    # Aktivasi
+    hidden = mapsigmoid(hidden)
+
+    output = np.dot(hidden, weights_ho)
+    output = output + bias_o
+    output = mapsigmoid(output)
+
+    return output
+
+
+def sigmoid(x):
+    return 1 / (1 + pow(math.e, -x))
+
+
+def mapsigmoid(data):
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            value = data[i, j]
+            data[i, j] = sigmoid(value)
+    return data
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -106,7 +140,7 @@ def index():
 
 @app.route('/predict')
 def predictView():
-    return render_template('index.html')
+    return render_template('predict.html')
 
 
 @app.route('/train')
@@ -136,6 +170,31 @@ def training():
 
     result = {'accuracy': accuracy, 'loss': loss, 'filename': model_save_as}
     return jsonify(result)
+
+
+@app.route('/predicting', methods=['POST'])
+def predicting():
+    modelfile = request.form['model']
+    with open('models/' + modelfile + '.json') as file:
+        model = json.load(file)
+    inputs = [float(request.form['dewp']), float(request.form['humi']),
+              float(request.form['pres']), float(request.form['temp']), float(request.form['cbwd']), float(request.form['iws']), float(request.form['precipitation']), float(request.form['iprec'])]
+    credentials = {
+        "weights_ih": model['weights_ih'][0],
+        "weights_ho": model['weights_ho'][0],
+        "bias_h": model['bias_h'][0],
+        "bias_o": model['bias_o'][0],
+    }
+
+    result = predictData(inputs, credentials)
+
+    data = {
+        "inputs": inputs,
+        "credentials": credentials,
+        "result": result.tolist()
+    }
+
+    return jsonify(data)
 
 
 @app.route('/data')
