@@ -10,6 +10,7 @@ from datetime import datetime
 import matplotlib.pyplot as pt
 import json
 import math
+import csv
 
 app = Flask(__name__)
 
@@ -265,9 +266,61 @@ def downloadNormalized(filename):
     return send_file('normalized/' + filename)
 
 
-@ app.route('/data')
-def dataView():
-    return render_template('data.html')
+@ app.route('/datanormalize', methods=['GET', 'POST'])
+def dataViewNormalize():
+    if request.method == 'GET':
+        results = {}
+        results[0] = []
+        results[0].append('Tidak ada data')
+        return render_template('data.html', results=results)
+    elif request.method == 'POST':
+        filename = request.form['data_source']
+        results = []
+        with open('normalized/' + filename + '.csv') as csv_file:
+            reader = csv.DictReader(csv_file)
+
+            for row in reader:
+                results.append(dict(row))
+
+        return render_template('data.html', results=results)
+
+
+@ app.route('/datatesting', methods=['GET', 'POST'])
+def dataViewTesting():
+    if request.method == 'GET':
+        results = {}
+        results[0] = []
+        results[0].append('Tidak ada data')
+        return render_template('datatesting.html', results=results)
+    elif request.method == 'POST':
+        filename = request.form['data_source']
+        results = []
+        with open('report/' + filename + '.csv') as csv_file:
+            reader = csv.DictReader(csv_file)
+
+            for row in reader:
+                results.append(dict(row))
+
+        return render_template('datatesting.html', results=results)
+
+
+@ app.route('/datatraining', methods=['GET', 'POST'])
+def dataViewTraining():
+    if request.method == 'GET':
+        results = {}
+        results[0] = []
+        results[0].append('Tidak ada data')
+        return render_template('datatraining.html', results=results)
+    elif request.method == 'POST':
+        filename = request.form['data_source']
+        results = []
+        with open('report/' + filename + '.csv') as csv_file:
+            reader = csv.DictReader(csv_file)
+
+            for row in reader:
+                results.append(dict(row))
+
+        return render_template('datatraining.html', results=results)
 
 
 @ app.route('/about')
