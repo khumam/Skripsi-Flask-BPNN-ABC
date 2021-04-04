@@ -154,14 +154,20 @@ def normalizingData(columnData):
             normalize = 0
         columnData[index] = normalize
 
-    return columnData
+    return columnData, maxValue, minValue
 
 
 def processNormalize(filepath):
     dataset = pd.read_csv('tonormalize/' + filepath + '.csv')
+    model = {}
     for (columnName, columnData) in dataset.iteritems():
-        dataset[columnName] = normalizingData(columnData)
-    # dataset.fillnae(0)
+        dataset[columnName], maxValue, minValue = normalizingData(columnData)
+        model[columnName] = []
+        model[columnName].append(
+            {'maxValue': float(maxValue), 'minValue': float(minValue)})
+
+    with open('normalized/config-' + filepath + '.json', 'w') as fileoutput:
+        json.dump(model, fileoutput)
     return dataset.to_csv('normalized/normalized-' + filepath + '.csv')
 
 

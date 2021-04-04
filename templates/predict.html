@@ -137,6 +137,10 @@
                                     <td>Hasil ternormalisasi</td>
                                     <td id="result"></td>
                                 </tr>
+                                <tr>
+                                    <td>Hasil</td>
+                                    <td id="resultreal"></td>
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -173,6 +177,7 @@
                 $('#iprec_val').html($('#iprec').val());
 
                 $('#result').html(data.result[0][0])
+                $('#resultreal').html((975 * data.result[0][0]) + 5)
                 console.log(data);
             },
             error: function (data) {

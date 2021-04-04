@@ -1,0 +1,74 @@
+{
+    "DEWP": [
+        {
+            "maxValue": 3.0,
+            "minValue": -27.0
+        }
+    ],
+    "HUMI": [
+        {
+            "maxValue": 100.0,
+            "minValue": 8.0
+        }
+    ],
+    "PRES": [
+        {
+            "maxValue": 1042.0,
+            "minValue": 999.0
+        }
+    ],
+    "TEMP": [
+        {
+            "maxValue": 14.0,
+            "minValue": -19.0
+        }
+    ],
+    "cbwd": [
+        {
+            "maxValue": 8.0,
+            "minValue": 1.0
+        }
+    ],
+    "Iws": [
+        {
+            "maxValue": 299.06,
+            "minValue": 0.45
+        }
+    ],
+    "precipitation": [
+        {
+            "maxValue": 3.3,
+            "minValue": 0.0
+        }
+    ],
+    "Iprec": [
+        {
+            "maxValue": 11.2,
+            "minValue": 0.0
+        }
+    ],
+    "PM_Dongsi": [
+        {
+            "maxValue": 3.0,
+            "minValue": 3.0
+        }
+    ],
+    "PM_Dongsihuan": [
+        {
+            "maxValue": 3.0,
+            "minValue": 3.0
+        }
+    ],
+    "PM_Nongzhanguan": [
+        {
+            "maxValue": 3.0,
+            "minValue": 3.0
+        }
+    ],
+    "PM_US Post": [
+        {
+            "maxValue": 980.0,
+            "minValue": 5.0
+        }
+    ]
+}
