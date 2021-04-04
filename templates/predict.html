@@ -27,7 +27,7 @@
                     <div class="form-group">
                         <label for="model">Model</label>
                         <select name="model" id="model" class="form-control" required>
-                            <option value="04-02-2021-16-17-11">04-02-2021-16-17-11</option>
+                            <option value="04-03-2021-13-48-12">04-03-2021-13-48-12</option>
                         </select>
                     </div>
                     <div class="row">
@@ -70,7 +70,7 @@
                             </div>
                             <div class="form-group mt-3">
                                 <label for="precipitation">Precipitation</label>
-                                <input type="number" id="precipitation" name="precipitation" class="form-control" required placeholder="precipitation" step="0.01">
+                                <input type="number" id="prec" name="precipitation" class="form-control" required placeholder="precipitation" step="0.01">
                             </div>
                             <div class="form-group mt-3">
                                 <label for="iprec">iprec</label>
@@ -101,10 +101,44 @@
                 <hr>
                 <div class="row">
                     <div class="col">
-                        <div class="alert alert-primary"><span id="detail"></span></div>
+                        <div class="alert alert-primary">
+                            <table class="table">
+                                <tr>
+                                    <td>DEWP</td>
+                                    <td id="dewp_val"></td>
+                                    <td>CBWD</td>
+                                    <td id="cbwd_val"></td>
+                                </tr>
+                                <tr>
+                                    <td>HUMI</td>
+                                    <td id="humi_val"></td>
+                                    <td>IWS</td>
+                                    <td id="iws_val"></td>
+                                </tr>
+                                <tr>
+                                    <td>PRES</td>
+                                    <td id="pres_val"></td>
+                                    <td>Precipitation</td>
+                                    <td id="prec_val"></td>
+                                </tr>
+                                <tr>
+                                    <td>TEMP</td>
+                                    <td id="temp_val"></td>
+                                    <td>IPREC</td>
+                                    <td id="iprec_val"></td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                     <div class="col">
-                        <div class="alert alert-success"><span id="result"></span></div>
+                        <div class="alert alert-success">
+                            <table class="table">
+                                <tr>
+                                    <td>Hasil</td>
+                                    <td id="result"></td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,16 +163,15 @@
             success: function (data) {
                 $('#result_loading').hide();
                 $('#result_field').show();
-                $('#detail').html(`
-                    DEWP: ${data.inputs[0]}<br>
-                    HUMI: ${data.inputs[1]}<br>
-                    PRES: ${data.inputs[2]}<br>
-                    TEMP: ${data.inputs[3]}<br>
-                    CBWD: ${data.inputs[4]}<br>
-                    IWS: ${data.inputs[5]}<br>
-                    PREC: ${data.inputs[6]}<br>
-                    IPREC: ${data.inputs[7]}<br>
-                `)
+                $('#dewp_val').html($('#dewp').val());
+                $('#humi_val').html($('#humi').val());
+                $('#pres_val').html($('#pres').val());
+                $('#temp_val').html($('#temp').val());
+                $('#cbwd_val').html($('#cbwd').val());
+                $('#iws_val').html($('#iws').val());
+                $('#prec_val').html($('#prec').val());
+                $('#iprec_val').html($('#iprec').val());
+
                 $('#result').html(data.result[0][0])
                 console.log(data);
             },

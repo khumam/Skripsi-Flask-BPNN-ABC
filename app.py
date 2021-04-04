@@ -15,22 +15,29 @@ app = Flask(__name__)
 
 
 def processDataset(filepath):
-    dataset = pd.read_csv(filepath, header=None, nrows=1400, skiprows=1)
+    alldataset = pd.read_csv(filepath, header=None, skiprows=1)
+    length = len(alldataset.index)
+
+    train_length = math.floor((70 / 100) * length)
+    test_length = math.floor((30/100) * length)
+
+    dataset = pd.read_csv(filepath, header=None,
+                          nrows=train_length, skiprows=1)
     dataset_testing = pd.read_csv(
-        filepath, header=None, nrows=600, skiprows=1400)
+        filepath, header=None, nrows=test_length, skiprows=train_length)
     data_training = []
     data_testing = []
 
     for index, rows in dataset.iterrows():
-        pre = [rows[10], rows[11], rows[12], rows[13],
-               rows[14], rows[15], rows[16], rows[17]]
-        tar = [rows[6]]
+        pre = [rows[1], rows[2], rows[3], rows[4],
+               rows[5], rows[6], rows[7], rows[8]]
+        tar = [rows[12]]
         data_training.append([pre, tar])
 
     for index, rows in dataset_testing.iterrows():
-        pre = [rows[10], rows[11], rows[12], rows[13],
-               rows[14], rows[15], rows[16], rows[17]]
-        tar = [rows[6]]
+        pre = [rows[1], rows[2], rows[3], rows[4],
+               rows[5], rows[6], rows[7], rows[8]]
+        tar = [rows[12]]
         data_testing.append([pre, tar])
 
     return data_training, data_testing
@@ -66,14 +73,17 @@ def processTrain(dataset_training, dataset_testing, learning_rate, epochs, hidde
         result = Backpropagation.process([test])
         error_val = abs(target - result)
         error_per = (error_val / target)
-        akurasi = (1 - error_per)
+        if (math.isinf(error_per[0][0])):
+            akurasi = (1 - error_per)
+        else:
+            akurasi = (1 - error_val)
 
         temp_data_result.append([result[0][0], target[0], error_val[0]
-                                 [0], error_per[0][0], round(akurasi[0][0] * 100 / 100)])
+                                 [0], error_per[0][0], akurasi[0][0] * 100 / 100])
 
     export_testing = np.array(temp_data_result)
     export_testing = pd.DataFrame(export_testing, columns=[
-                                  'Hasil', 'Target', 'Delta Error', 'Error', 'Akurasi'])
+        'Hasil', 'Target', 'Delta Error', 'Error', 'Akurasi'])
     export_testing.to_csv('report/testing-' + output + '.csv')
 
     Backpropagation.save_model('models/' + output + '.json')
@@ -133,22 +143,49 @@ def mapsigmoid(data):
     return data
 
 
-@app.route('/')
+def normalizingData(columnData):
+    maxValue = columnData.max()
+    minValue = columnData.min()
+    pembagi = maxValue - minValue
+
+    for index in range(len(columnData.index)):
+        normalize = float((columnData[index] - minValue) / pembagi)
+        if math.isnan(normalize):
+            normalize = 0
+        columnData[index] = normalize
+
+    return columnData
+
+
+def processNormalize(filepath):
+    dataset = pd.read_csv('tonormalize/' + filepath + '.csv')
+    for (columnName, columnData) in dataset.iteritems():
+        dataset[columnName] = normalizingData(columnData)
+    # dataset.fillnae(0)
+    return dataset.to_csv('normalized/normalized-' + filepath + '.csv')
+
+
+@ app.route('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/predict')
+@ app.route('/predict')
 def predictView():
     return render_template('predict.html')
 
 
-@app.route('/train')
+@ app.route('/train')
 def trainView():
     return render_template('train.html')
 
 
-@app.route('/training', methods=['POST'])
+@ app.route('/normalize')
+def normalizeView():
+    return render_template('normalize.html')
+
+
+@ app.route('/training', methods=['POST'])
 def training():
     dataset = request.files['dataset_source']
     basepath = os.path.dirname(__file__)
@@ -172,7 +209,22 @@ def training():
     return jsonify(result)
 
 
-@app.route('/predicting', methods=['POST'])
+@ app.route('/normalizing', methods=['POST'])
+def normalizing():
+    model_save_as = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
+    dataset = request.files['dataset_source']
+    basepath = os.path.dirname(__file__)
+    file_path = os.path.join(
+        basepath, 'tonormalize', secure_filename('tonormalized-' + model_save_as + '.csv'))
+    dataset.save(file_path)
+
+    processNormalize('tonormalized-' + model_save_as)
+
+    result = {'filename': model_save_as}
+    return jsonify(result)
+
+
+@ app.route('/predicting', methods=['POST'])
 def predicting():
     modelfile = request.form['model']
     with open('models/' + modelfile + '.json') as file:
@@ -197,12 +249,12 @@ def predicting():
     return jsonify(data)
 
 
-@app.route('/data')
+@ app.route('/data')
 def dataView():
     return render_template('index.html')
 
 
-@app.route('/about')
+@ app.route('/about')
 def aboutView():
     return render_template('index.html')
 
