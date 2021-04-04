@@ -1,0 +1,30 @@
+{% extends "base/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item"><a href="#"><span class="fas fa-home"></span></a></li>
+              <li class="breadcrumb-item active" aria-current="page">Data</li>
+            </ol>
+        </nav>
+        <h2 class="h4">Data</h2>
+        <p class="mb-0">Informasi detail data hasil normalisasi</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-primary">Prediksi</button>
+            <button type="button" class="btn btn-sm btn-outline-primary">Train</button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-light shadow-sm">
+            <div class="card-body">
+                <h5>Konten goes here</h5>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

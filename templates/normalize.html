@@ -52,7 +52,7 @@
                 <hr>
                 <div class="row mt-3">
                     <div class="col">
-                        <div class="alert alert-primary"><a id="datanormalize">Data Training</a></div>
+                        <div class="alert alert-primary"><a id="datanormalize">Unduh Data Ternormalisasi</a></div>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
             success: function (data) {
                 $('#result_loading').hide();
                 $('#result_field').show();
-                $('#datanormalize').attr('href', 'normalized/normalized-' + data.filename + '.csv');
+                $('#datanormalize').attr('href', 'normalized/normalized-tonormalized-' + data.filename + '.csv');
                 console.log(data);
             },
             error: function (data) {

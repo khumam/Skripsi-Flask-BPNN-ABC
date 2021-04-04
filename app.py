@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file
 from werkzeug.utils import secure_filename
 import os
 import pandas as pd
@@ -249,9 +249,19 @@ def predicting():
     return jsonify(data)
 
 
+@app.route('/report/<filename>')
+def downloadReport(filename):
+    return send_file('report/' + filename)
+
+
+@app.route('/normalized/<filename>')
+def downloadNormalized(filename):
+    return send_file('normalized/' + filename)
+
+
 @ app.route('/data')
 def dataView():
-    return render_template('index.html')
+    return render_template('data.html')
 
 
 @ app.route('/about')
