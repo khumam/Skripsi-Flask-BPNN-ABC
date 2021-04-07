@@ -18,8 +18,7 @@
     </div>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-outline-primary">Prediksi</button>
-            <button type="button" class="btn btn-sm btn-outline-primary">Train</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.history.back();">Kembali</button>
         </div>
     </div>
 </div>
@@ -33,8 +32,9 @@
                     <div class="form-group">
                         <label for="data_source">Sumber Data</label>
                         <select name="data_source" id="data_source" class="form-control" required>
-                            <option value="normalized-tonormalized-04-04-2021-11-29-50">normalized-tonormalized-04-04-2021-11-29-50</option>
-                            <option value="normalized-tonormalized-04-04-2021-11-01-37">normalized-tonormalized-04-04-2021-11-01-37</option>
+                            {% for sourcefile in sourcefiles %}
+                            <option value="{{ sourcefile }}">{{ sourcefile }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div class="form-group mt-3">

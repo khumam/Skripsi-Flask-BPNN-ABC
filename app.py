@@ -1,16 +1,20 @@
+import csv
+import math
+import json
+import matplotlib.pyplot as pt
 from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file
 from werkzeug.utils import secure_filename
 import os
+from os import listdir
+from os.path import isfile, join
 import pandas as pd
 import numpy as np
 from Bpnn import Bpnn
 from BpnnAbc import BpnnAbc
 import random
 from datetime import datetime
-import matplotlib.pyplot as pt
-import json
-import math
-import csv
+import matplotlib
+matplotlib.use('Agg')
 
 app = Flask(__name__)
 
@@ -167,7 +171,7 @@ def processNormalize(filepath):
         model[columnName].append(
             {'maxValue': float(maxValue), 'minValue': float(minValue)})
 
-    with open('normalized/config-' + filepath + '.json', 'w') as fileoutput:
+    with open('config/config-' + filepath + '.json', 'w') as fileoutput:
         json.dump(model, fileoutput)
     return dataset.to_csv('normalized/normalized-' + filepath + '.csv')
 
@@ -179,7 +183,8 @@ def index():
 
 @ app.route('/predict')
 def predictView():
-    return render_template('predict.html')
+    models = [f for f in listdir('./models') if isfile(join('./models', f))]
+    return render_template('predict.html', models = models)
 
 
 @ app.route('/train')
@@ -234,7 +239,7 @@ def normalizing():
 @ app.route('/predicting', methods=['POST'])
 def predicting():
     modelfile = request.form['model']
-    with open('models/' + modelfile + '.json') as file:
+    with open('models/' + modelfile) as file:
         model = json.load(file)
     inputs = [float(request.form['dewp']), float(request.form['humi']),
               float(request.form['pres']), float(request.form['temp']), float(request.form['cbwd']), float(request.form['iws']), float(request.form['precipitation']), float(request.form['iprec'])]
@@ -268,64 +273,67 @@ def downloadNormalized(filename):
 
 @ app.route('/datanormalize', methods=['GET', 'POST'])
 def dataViewNormalize():
+    sourcefiles = [f for f in listdir('./normalized') if isfile(join('./normalized', f))]
     if request.method == 'GET':
         results = {}
         results[0] = []
         results[0].append('Tidak ada data')
-        return render_template('data.html', results=results)
+        return render_template('data.html', results=results, sourcefiles = sourcefiles)
     elif request.method == 'POST':
         filename = request.form['data_source']
         results = []
-        with open('normalized/' + filename + '.csv') as csv_file:
+        with open('normalized/' + filename) as csv_file:
             reader = csv.DictReader(csv_file)
 
             for row in reader:
                 results.append(dict(row))
 
-        return render_template('data.html', results=results)
+        return render_template('data.html', results=results, sourcefiles = sourcefiles)
 
 
 @ app.route('/datatesting', methods=['GET', 'POST'])
 def dataViewTesting():
+    sourcefiles = [f for f in listdir('./report') if isfile(join('./report', f)) and 'testing' in f]
     if request.method == 'GET':
         results = {}
         results[0] = []
         results[0].append('Tidak ada data')
-        return render_template('datatesting.html', results=results)
+        return render_template('datatesting.html', results=results, sourcefiles = sourcefiles)
     elif request.method == 'POST':
         filename = request.form['data_source']
         results = []
-        with open('report/' + filename + '.csv') as csv_file:
+        with open('report/' + filename) as csv_file:
             reader = csv.DictReader(csv_file)
 
             for row in reader:
                 results.append(dict(row))
 
-        return render_template('datatesting.html', results=results)
+        return render_template('datatesting.html', results=results, sourcefiles = sourcefiles)
 
 
 @ app.route('/datatraining', methods=['GET', 'POST'])
 def dataViewTraining():
+    sourcefiles = [f for f in listdir('./report') if isfile(join('./report', f)) and 'train' in f]
     if request.method == 'GET':
         results = {}
         results[0] = []
         results[0].append('Tidak ada data')
-        return render_template('datatraining.html', results=results)
+        return render_template('datatraining.html', results=results, sourcefiles = sourcefiles)
     elif request.method == 'POST':
         filename = request.form['data_source']
         results = []
-        with open('report/' + filename + '.csv') as csv_file:
+        with open('report/' + filename) as csv_file:
             reader = csv.DictReader(csv_file)
 
             for row in reader:
                 results.append(dict(row))
 
-        return render_template('datatraining.html', results=results)
+        return render_template('datatraining.html', results=results, sourcefiles = sourcefiles)
 
 
 @ app.route('/about')
 def aboutView():
-    return render_template('index.html')
+    return render_template('about.html')
 
 
 if __name__ == '__main__':
