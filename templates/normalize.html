@@ -64,6 +64,7 @@
 {% block javascripts %}
 <script>
     $('#normalize_btn').on('click', function() {
+        if(!validateData()) return false;
         $('#result_normalize').show();
         $('#result_loading').show();
         var data = new FormData();
@@ -78,6 +79,15 @@
             processData: false,
             async: true,
             success: function (data) {
+                if (data.error) {
+                    Swal.fire({
+                        title: "Data tidak lengkap",
+                        text: data.message,
+                        icon: "error"
+                    });
+                    return false;
+                }
+
                 $('#result_loading').hide();
                 $('#result_field').show();
                 $('#datanormalize').attr('href', 'normalized/normalized-tonormalized-' + data.filename + '.csv');
@@ -88,5 +98,17 @@
             }
         });
     })
+
+    function validateData() {
+        if ($('#dataset_source')[0].files.length === 0) {
+            Swal.fire({
+                title: "Data tidak lengkap",
+                text: 'Tidak ada dataset yang dipilih',
+                icon: "error"
+            });
+            return false;
+        }
+        return true;
+    }
 </script>
 {% endblock javascripts %}

@@ -23,7 +23,7 @@
             <div class="card-body">
                 <h4>Detail Pelatihan</h4>
                 <hr>
-                <p>Pastikan dataset dalam bentuk .csv. Total dataset akan dibagi menjadi 70% data pelatihan dan 70% data validasi.</p>
+                <p>Pastikan dataset dalam bentuk .csv. Total dataset akan dibagi menjadi 70% data pelatihan dan 30% data validasi.</p>
                 <form method="POST" enctype="multipart/form-data" id="train_data">
                     <div class="form-group">
                         <label for="train_type">Algoritma Pelatihan</label>
@@ -40,19 +40,19 @@
                         <div class="col">
                             <div class="form-group">
                                 <label for="epoch">Epoh</label>
-                                <input type="number" name="epoch" id="epoch" required placeholder="Epoh pelatihan" class="form-control">
+                                <input type="number" name="epoch" id="epoch" required placeholder="Epoh pelatihan" class="form-control" data-name="Epoh">
                             </div>
                         </div>
                         <div class="col">
                             <div class="form-group">
                                 <label for="hidden_neuron">Hidden Neuron</label>
-                                <input type="number" name="hidden_neuron" id="hidden_neuron" required placeholder="Epoh pelatihan" class="form-control">
+                                <input type="number" name="hidden_neuron" id="hidden_neuron" required placeholder="Epoh pelatihan" class="form-control" data-name="Hidden neuron">
                             </div>
                         </div>
                         <div class="col">
                             <div class="form-group">
                                 <label for="learning_rate">Learning Rate</label>
-                                <input type="number" name="learning_rate" id="learning_rate" required placeholder="Learning rate" class="form-control" step="0.1">
+                                <input type="number" name="learning_rate" id="learning_rate" required placeholder="Learning rate" class="form-control" step="0.1" data-name="Learning rate">
                             </div>
                         </div>
                     </div>
@@ -112,6 +112,7 @@
 {% block javascripts %}
 <script>
     $('#train_btn').on('click', function() {
+        if (!validateData()) return false;
         $('#result_train').show();
         $('#result_loading').show();
         var data = new FormData();
@@ -130,6 +131,14 @@
             processData: false,
             async: true,
             success: function (data) {
+                if (data.error) {
+                    Swal.fire({
+                        title: "Data tidak lengkap",
+                        text: data.message,
+                        icon: "error"
+                    });
+                    return false;
+                }
                 $('#accuracy').html(data.accuracy);
                 $('#loss').html(data.loss);
                 $('#result_loading').hide();
@@ -145,5 +154,32 @@
             }
         });
     })
+
+    function validateData() {
+        var isValid = true;
+        if ($('#dataset_source')[0].files.length === 0) {
+            Swal.fire({
+                title: "Data tidak lengkap",
+                text: 'Tidak ada dataset yang dipilih',
+                icon: "error"
+            });
+            return false;
+        }
+
+        $("input").each(function() {
+            var element = $(this);
+            if (element.val() == "" || element.val() == null) {
+                isValid = false;
+                Swal.fire({
+                    title: "Data tidak lengkap",
+                    text: element.data('name') + ' tidak boleh kosong',
+                    icon: "error"
+                });
+                return false;
+            }
+        });
+
+        return true;
+    }
 </script>
 {% endblock javascripts %}

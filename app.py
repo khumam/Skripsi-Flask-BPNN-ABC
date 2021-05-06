@@ -184,7 +184,7 @@ def index():
 @ app.route('/predict')
 def predictView():
     models = [f for f in listdir('./models') if isfile(join('./models', f))]
-    return render_template('predict.html', models = models)
+    return render_template('predict.html', models=models)
 
 
 @ app.route('/train')
@@ -199,6 +199,13 @@ def normalizeView():
 
 @ app.route('/training', methods=['POST'])
 def training():
+    if 'dataset_source' not in request.files:
+        data = {
+            "error": True,
+            "message": "Tidak ada dataset yang dipilih"
+        }
+        return jsonify(data)
+        
     dataset = request.files['dataset_source']
     basepath = os.path.dirname(__file__)
     file_path = os.path.join(
@@ -217,12 +224,19 @@ def training():
     accuracy, loss = processTrain(
         dataset_training, dataset_testing, learning_rate, epoch, hidden_neuron, model_save_as, algorithm)
 
-    result = {'accuracy': accuracy, 'loss': loss, 'filename': model_save_as}
+    result = {'error': False, 'accuracy': accuracy, 'loss': loss, 'filename': model_save_as}
     return jsonify(result)
 
 
 @ app.route('/normalizing', methods=['POST'])
 def normalizing():
+    if 'dataset_source' not in request.files:
+        data = {
+            "error": True,
+            "message": "Tidak ada dataset yang dipilih"
+        }
+        return jsonify(data)
+
     model_save_as = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
     dataset = request.files['dataset_source']
     basepath = os.path.dirname(__file__)
@@ -232,12 +246,19 @@ def normalizing():
 
     processNormalize('tonormalized-' + model_save_as)
 
-    result = {'filename': model_save_as}
+    result = {'error': False, 'filename': model_save_as}
     return jsonify(result)
 
 
 @ app.route('/predicting', methods=['POST'])
 def predicting():
+    if ('model' not in request.form):
+        data = {
+            "error": True,
+            "message": "Tidak ada model yang dipilih"
+        }
+        return jsonify(data)
+
     modelfile = request.form['model']
     with open('models/' + modelfile) as file:
         model = json.load(file)
@@ -253,6 +274,7 @@ def predicting():
     result = predictData(inputs, credentials)
 
     data = {
+        "error": False,
         "inputs": inputs,
         "credentials": credentials,
         "result": result.tolist()
@@ -273,12 +295,13 @@ def downloadNormalized(filename):
 
 @ app.route('/datanormalize', methods=['GET', 'POST'])
 def dataViewNormalize():
-    sourcefiles = [f for f in listdir('./normalized') if isfile(join('./normalized', f))]
+    sourcefiles = [f for f in listdir(
+        './normalized') if isfile(join('./normalized', f))]
     if request.method == 'GET':
         results = {}
         results[0] = []
         results[0].append('Tidak ada data')
-        return render_template('data.html', results=results, sourcefiles = sourcefiles)
+        return render_template('data.html', results=results, sourcefiles=sourcefiles)
     elif request.method == 'POST':
         filename = request.form['data_source']
         results = []
@@ -288,17 +311,18 @@ def dataViewNormalize():
             for row in reader:
                 results.append(dict(row))
 
-        return render_template('data.html', results=results, sourcefiles = sourcefiles)
+        return render_template('data.html', results=results, sourcefiles=sourcefiles)
 
 
 @ app.route('/datatesting', methods=['GET', 'POST'])
 def dataViewTesting():
-    sourcefiles = [f for f in listdir('./report') if isfile(join('./report', f)) and 'testing' in f]
+    sourcefiles = [f for f in listdir(
+        './report') if isfile(join('./report', f)) and 'testing' in f]
     if request.method == 'GET':
         results = {}
         results[0] = []
         results[0].append('Tidak ada data')
-        return render_template('datatesting.html', results=results, sourcefiles = sourcefiles)
+        return render_template('datatesting.html', results=results, sourcefiles=sourcefiles)
     elif request.method == 'POST':
         filename = request.form['data_source']
         results = []
@@ -308,17 +332,18 @@ def dataViewTesting():
             for row in reader:
                 results.append(dict(row))
 
-        return render_template('datatesting.html', results=results, sourcefiles = sourcefiles)
+        return render_template('datatesting.html', results=results, sourcefiles=sourcefiles)
 
 
 @ app.route('/datatraining', methods=['GET', 'POST'])
 def dataViewTraining():
-    sourcefiles = [f for f in listdir('./report') if isfile(join('./report', f)) and 'train' in f]
+    sourcefiles = [f for f in listdir(
+        './report') if isfile(join('./report', f)) and 'train' in f]
     if request.method == 'GET':
         results = {}
         results[0] = []
         results[0].append('Tidak ada data')
-        return render_template('datatraining.html', results=results, sourcefiles = sourcefiles)
+        return render_template('datatraining.html', results=results, sourcefiles=sourcefiles)
     elif request.method == 'POST':
         filename = request.form['data_source']
         results = []
@@ -328,7 +353,7 @@ def dataViewTraining():
             for row in reader:
                 results.append(dict(row))
 
-        return render_template('datatraining.html', results=results, sourcefiles = sourcefiles)
+        return render_template('datatraining.html', results=results, sourcefiles=sourcefiles)
 
 
 @ app.route('/about')

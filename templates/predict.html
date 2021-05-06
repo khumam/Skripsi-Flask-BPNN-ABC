@@ -35,25 +35,25 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-group mt-3">
-                                <label for="dewp">DEWP</label>
-                                <input type="number" id="dewp" name="dewp" class="form-control" required placeholder="Dewp" step="0.01">
+                                <label for="dewp">Tingkat embun</label>
+                                <input type="number" id="dewp" name="dewp" class="form-control" required placeholder="Dewp" step="0.01" data-name="Tingkat embun">
                             </div>
                             <div class="form-group mt-3">
-                                <label for="humi">HUMI</label>
-                                <input type="number" id="humi" name="humi" class="form-control" required placeholder="humi" step="0.01">
+                                <label for="humi">Tingkat kelembaban</label>
+                                <input type="number" id="humi" name="humi" class="form-control" required placeholder="humi" step="0.01" data-name="Tingkat kelembaban">
                             </div>
                             <div class="form-group mt-3">
-                                <label for="pres">PRES</label>
-                                <input type="number" id="pres" name="pres" class="form-control" required placeholder="pres" step="0.01">
+                                <label for="pres">Tekanan</label>
+                                <input type="number" id="pres" name="pres" class="form-control" required placeholder="pres" step="0.01" data-name="Tekanan">
                             </div>
                             <div class="form-group mt-3">
-                                <label for="temp">TEMP</label>
-                                <input type="number" id="temp" name="temp" class="form-control" required placeholder="temp" step="0.01">
+                                <label for="temp">Temperatur (C)</label>
+                                <input type="number" id="temp" name="temp" class="form-control" required placeholder="temp" step="0.01" data-name="Temperatur">
                             </div>
                         </div>
                         <div class="col">
                             <div class="form-group mt-3">
-                                <label for="cbwd">CBWD</label>
+                                <label for="cbwd">Arah mata angin</label>
                                 <select name="cbwd" id="cbwd" class="form-control" required>
                                     <option value="0">Utara</option>
                                     <option value="1">Timur Laut</option>
@@ -67,16 +67,16 @@
                                 </select>
                             </div>
                             <div class="form-group mt-3">
-                                <label for="iws">IWS</label>
-                                <input type="number" id="iws" name="iws" class="form-control" required placeholder="iws" step="0.01">
+                                <label for="iws">Indeks kecepatan angin</label>
+                                <input type="number" id="iws" name="iws" class="form-control" required placeholder="iws" step="0.01" data-name="Indeks kecepatan angin">
                             </div>
                             <div class="form-group mt-3">
-                                <label for="precipitation">Precipitation</label>
-                                <input type="number" id="prec" name="precipitation" class="form-control" required placeholder="precipitation" step="0.01">
+                                <label for="precipitation">Presipitasi</label>
+                                <input type="number" id="prec" name="precipitation" class="form-control" required placeholder="precipitation" step="0.01" data-name="Presipitasi">
                             </div>
                             <div class="form-group mt-3">
-                                <label for="iprec">iprec</label>
-                                <input type="number" id="iprec" name="iprec" class="form-control" required placeholder="iprec" step="0.01" min="0">
+                                <label for="iprec">Indeks kecepatan presipitasi</label>
+                                <input type="number" id="iprec" name="iprec" class="form-control" required placeholder="iprec" step="0.01" min="0" data-name="Indeks kecepatan presipitasi">
                             </div>
                         </div>
                     </div>
@@ -156,6 +156,7 @@
 {% block javascripts %}
 <script>
     $('#predict_btn').on('click', function() {
+        if(!validateData()) return false;
         $('#result_train').show();
         $('#result_loading').show();
         var data = $('#predict_data').serialize()
@@ -167,6 +168,14 @@
             cache: false,
             async: true,
             success: function (data) {
+                if (data.error) {
+                    Swal.fire({
+                        title: "Data tidak lengkap",
+                        text: data.message,
+                        icon: "error"
+                    });
+                }
+
                 $('#result_loading').hide();
                 $('#result_field').show();
                 $('#dewp_val').html($('#dewp').val());
@@ -187,5 +196,23 @@
             }
         });
     })
+
+    function validateData() {
+        var isValid = true;
+        $("input").each(function() {
+            var element = $(this);
+            if (element.val() == "" || element.val() == null) {
+                isValid = false;
+                Swal.fire({
+                    title: "Data tidak lengkap",
+                    text: element.data('name') + ' tidak boleh kosong',
+                    icon: "error"
+                });
+                return false;
+            }
+        });
+        return true;
+        
+    }
 </script>
 {% endblock javascripts %}
