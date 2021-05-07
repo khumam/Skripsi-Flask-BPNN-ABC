@@ -12,7 +12,7 @@ from random import choice
 
 class BpnnAbc:
 
-    def __init__(self, numInput, numHidden, numOutput, lr=None, activation=None):
+    def __init__(self, numInput, numHidden, numOutput, lr=None, activation=None, maxConfig=0, minConfig=0):
         self.numInput = numInput
         self.numHidden = numHidden
         self.numOutput = numOutput
@@ -40,6 +40,9 @@ class BpnnAbc:
             self.activation = activation
         else:
             self.activation = 'sigmoid'
+
+        self.max_config = maxConfig
+        self.min_config = minConfig
 
     def process(self, inputs):
         inputs = np.array(inputs)
@@ -366,6 +369,12 @@ class BpnnAbc:
         if type == 'output':
             return self.outputFoodSource
 
+    def get_max_config(self):
+        return self.max_config
+
+    def get_min_config(self):
+        return self.min_config
+
     def save_model(self, filename):
         model = {}
         model['algorithm'] = []
@@ -383,6 +392,10 @@ class BpnnAbc:
         model['accuracy'].append(self.get_accuracy(True))
         model['loss'] = []
         model['loss'].append(self.get_loss(True))
+        model['max_config'] = []
+        model['max_config'].append(self.get_max_config())
+        model['min_config'] = []
+        model['min_config'].append(self.get_min_config())
 
         with open(filename, 'w') as fileoutput:
             json.dump(model, fileoutput)

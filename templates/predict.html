@@ -36,19 +36,19 @@
                         <div class="col">
                             <div class="form-group mt-3">
                                 <label for="dewp">Tingkat embun</label>
-                                <input type="number" id="dewp" name="dewp" class="form-control" required placeholder="Dewp" step="0.01" data-name="Tingkat embun">
+                                <input type="number" id="dewp" name="dewp" class="form-control" required placeholder="Tingkat embun" step="0.01" data-name="Tingkat embun">
                             </div>
                             <div class="form-group mt-3">
                                 <label for="humi">Tingkat kelembaban</label>
-                                <input type="number" id="humi" name="humi" class="form-control" required placeholder="humi" step="0.01" data-name="Tingkat kelembaban">
+                                <input type="number" id="humi" name="humi" class="form-control" required placeholder="Tingkat kelembaban" step="0.01" data-name="Tingkat kelembaban">
                             </div>
                             <div class="form-group mt-3">
                                 <label for="pres">Tekanan</label>
-                                <input type="number" id="pres" name="pres" class="form-control" required placeholder="pres" step="0.01" data-name="Tekanan">
+                                <input type="number" id="pres" name="pres" class="form-control" required placeholder="Tekanan" step="0.01" data-name="Tekanan">
                             </div>
                             <div class="form-group mt-3">
                                 <label for="temp">Temperatur (C)</label>
-                                <input type="number" id="temp" name="temp" class="form-control" required placeholder="temp" step="0.01" data-name="Temperatur">
+                                <input type="number" id="temp" name="temp" class="form-control" required placeholder="Temperatur" step="0.01" data-name="Temperatur">
                             </div>
                         </div>
                         <div class="col">
@@ -68,15 +68,15 @@
                             </div>
                             <div class="form-group mt-3">
                                 <label for="iws">Indeks kecepatan angin</label>
-                                <input type="number" id="iws" name="iws" class="form-control" required placeholder="iws" step="0.01" data-name="Indeks kecepatan angin">
+                                <input type="number" id="iws" name="iws" class="form-control" required placeholder="Indeks kecepatan angin" step="0.01" data-name="Indeks kecepatan angin">
                             </div>
                             <div class="form-group mt-3">
                                 <label for="precipitation">Presipitasi</label>
-                                <input type="number" id="prec" name="precipitation" class="form-control" required placeholder="precipitation" step="0.01" data-name="Presipitasi">
+                                <input type="number" id="prec" name="precipitation" class="form-control" required placeholder="Presipitasi" step="0.01" data-name="Presipitasi">
                             </div>
                             <div class="form-group mt-3">
                                 <label for="iprec">Indeks kecepatan presipitasi</label>
-                                <input type="number" id="iprec" name="iprec" class="form-control" required placeholder="iprec" step="0.01" min="0" data-name="Indeks kecepatan presipitasi">
+                                <input type="number" id="iprec" name="iprec" class="form-control" required placeholder="Indeks kecepatan presipitasi" step="0.01" min="0" data-name="Indeks kecepatan presipitasi">
                             </div>
                         </div>
                     </div>
@@ -104,46 +104,42 @@
                 <div class="row">
                     <div class="col">
                         <div class="alert alert-primary">
-                            <table class="table">
-                                <tr>
-                                    <td>DEWP</td>
-                                    <td id="dewp_val"></td>
-                                    <td>CBWD</td>
-                                    <td id="cbwd_val"></td>
-                                </tr>
-                                <tr>
-                                    <td>HUMI</td>
-                                    <td id="humi_val"></td>
-                                    <td>IWS</td>
-                                    <td id="iws_val"></td>
-                                </tr>
-                                <tr>
-                                    <td>PRES</td>
-                                    <td id="pres_val"></td>
-                                    <td>Precipitation</td>
-                                    <td id="prec_val"></td>
-                                </tr>
-                                <tr>
-                                    <td>TEMP</td>
-                                    <td id="temp_val"></td>
-                                    <td>IPREC</td>
-                                    <td id="iprec_val"></td>
-                                </tr>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tr>
+                                        <td>Tingkat embun</td>
+                                        <td id="dewp_val"></td>
+                                        <td>Arah mata angin</td>
+                                        <td id="cbwd_val"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tingkat kelembaban</td>
+                                        <td id="humi_val"></td>
+                                        <td>Indeks kecepatan angin</td>
+                                        <td id="iws_val"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tekanan</td>
+                                        <td id="pres_val"></td>
+                                        <td>Presipitasi</td>
+                                        <td id="prec_val"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Temperatur</td>
+                                        <td id="temp_val"></td>
+                                        <td>Indeks kecepatan presipitasi</td>
+                                        <td id="iprec_val"></td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="alert alert-success">
-                            <table class="table">
-                                <tr>
-                                    <td>Hasil ternormalisasi</td>
-                                    <td id="result"></td>
-                                </tr>
-                                <tr>
-                                    <td>Hasil</td>
-                                    <td id="resultreal"></td>
-                                </tr>
-                            </table>
+                            <div class="text-center">
+                                <p class="lead">Tingkat aerosol</p>
+                                <p class="lead" id="resultreal"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,9 +182,7 @@
                 $('#iws_val').html($('#iws').val());
                 $('#prec_val').html($('#prec').val());
                 $('#iprec_val').html($('#iprec').val());
-
-                $('#result').html(data.result[0][0])
-                $('#resultreal').html((975 * data.result[0][0]) + 5)
+                $('#resultreal').html((((data.max_config - data.min_config) * data.result[0][0]) + data.min_config).toFixed(3))
                 console.log(data);
             },
             error: function (data) {

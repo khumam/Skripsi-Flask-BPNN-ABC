@@ -36,6 +36,14 @@
                         <label for="dataset_source">Dataset</label>
                         <input type="file" name="dataset_source" id="dataset_source" required class="form-control" placeholder="Sumber dataset">
                     </div>
+                    <div class="form-group mt-3">
+                        <label for="config_source">Config normalisasi</label>
+                        <select name="config_source" id="config_source" class="form-control" required>
+                            {% for sourcefile in sourcefiles %}
+                            <option value="{{ sourcefile }}">{{ sourcefile }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="row mt-3">
                         <div class="col">
                             <div class="form-group">
@@ -79,10 +87,10 @@
                 <hr>
                 <div class="row">
                     <div class="col">
-                        <div class="alert alert-success">Akurasi <span id="accuracy"></span></div>
+                        <div class="alert alert-success">Akurasi<br><p class="lead" id="accuracy"></p></div>
                     </div>
                     <div class="col">
-                        <div class="alert alert-danger">Loss <span id="loss"></span></div>
+                        <div class="alert alert-danger">Loss<br><p class="lead" id="loss"></p></div>
                     </div>
                 </div>
                 <div class="row mt-3">
@@ -120,6 +128,7 @@
         data.append('epoch', $('#epoch').val());
         data.append('learning_rate', $('#learning_rate').val());
         data.append('hidden_neuron', $('#hidden_neuron').val());
+        data.append('config_source', $('#config_source').val());
         data.append('dataset_source', $('#dataset_source')[0].files[0]);
 
         $.ajax({

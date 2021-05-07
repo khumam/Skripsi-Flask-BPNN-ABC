@@ -36,24 +36,25 @@ def processDataset(filepath):
     for index, rows in dataset.iterrows():
         pre = [rows[1], rows[2], rows[3], rows[4],
                rows[5], rows[6], rows[7], rows[8]]
-        tar = [rows[12]]
+        tar = [rows[9]]
         data_training.append([pre, tar])
 
     for index, rows in dataset_testing.iterrows():
         pre = [rows[1], rows[2], rows[3], rows[4],
                rows[5], rows[6], rows[7], rows[8]]
-        tar = [rows[12]]
+        tar = [rows[9]]
         data_testing.append([pre, tar])
 
     return data_training, data_testing
 
 
-def processTrain(dataset_training, dataset_testing, learning_rate, epochs, hidden_neuron, output, type):
+def processTrain(dataset_training, dataset_testing, learning_rate, epochs, hidden_neuron, output, type, maxConfig, minConfig):
     if type == 'bpnn':
-        Backpropagation = Bpnn(8, int(hidden_neuron), 1, float(learning_rate))
+        Backpropagation = Bpnn(8, int(hidden_neuron), 1,
+                               float(learning_rate), maxConfig=maxConfig, minConfig=minConfig)
     else:
         Backpropagation = BpnnAbc(
-            8, int(hidden_neuron), 1, float(learning_rate))
+            8, int(hidden_neuron), 1, float(learning_rate), maxConfig=maxConfig, minConfig=minConfig)
 
     temp_data_training = []
     temp_data_result = []
@@ -91,7 +92,8 @@ def processTrain(dataset_training, dataset_testing, learning_rate, epochs, hidde
         'Hasil', 'Target', 'Delta Error', 'Error', 'Akurasi'])
     export_testing.to_csv('report/testing-' + output + '.csv')
 
-    Backpropagation.save_model('models/' + output + '.json')
+    Backpropagation.save_model(
+        'models/' + type.upper() + '-' + output + '.json')
     saveGraph(output, 'accuracy')
     saveGraph(output, 'error')
 
@@ -107,13 +109,13 @@ def saveGraph(filename, type):
         pt.xlabel('Akurasi')
         pt.ylabel('Epoh')
         pt.title('Tingkat akurasi selama pelatihan')
-        return pt.savefig('static/fig/akurasi-' + filename + '.png')
+        return pt.savefig('static/fig/akurasi-' + filename + '.png', dpi=200, quality=100)
     else:
         pt.xlabel('Loss')
         pt.ylabel('Epoh')
         pt.plot(result['MSE'])
         pt.title('Tingkat loss selama pelatihan')
-        return pt.savefig('static/fig/error-' + filename + '.png')
+        return pt.savefig('static/fig/error-' + filename + '.png', dpi=200, quality=100)
 
 
 def predictData(inputs, credentials):
@@ -176,6 +178,20 @@ def processNormalize(filepath):
     return dataset.to_csv('normalized/normalized-' + filepath + '.csv')
 
 
+def getConfigValue(filepath):
+    file = open('./config/' + filepath)
+    data = json.load(file)
+    total = len(data)
+    maxValue = 0
+    minValue = 0
+    for index, key in enumerate(data):
+        if (index == (total - 1)):
+            maxValue = data[key][0]['maxValue']
+            minValue = data[key][0]['minValue']
+
+    return maxValue, minValue
+
+
 @ app.route('/')
 def index():
     return render_template('index.html')
@@ -189,7 +205,9 @@ def predictView():
 
 @ app.route('/train')
 def trainView():
-    return render_template('train.html')
+    sourcefiles = [f for f in listdir(
+        './config') if isfile(join('./config', f))]
+    return render_template('train.html', sourcefiles=sourcefiles)
 
 
 @ app.route('/normalize')
@@ -205,8 +223,16 @@ def training():
             "message": "Tidak ada dataset yang dipilih"
         }
         return jsonify(data)
-        
+
+    if 'config_source' not in request.form:
+        data = {
+            "error": True,
+            "message": "Tidak ada config yang dipilih"
+        }
+        return jsonify(data)
+
     dataset = request.files['dataset_source']
+    config = request.form['config_source']
     basepath = os.path.dirname(__file__)
     file_path = os.path.join(
         basepath, 'datasets', secure_filename(dataset.filename))
@@ -221,10 +247,14 @@ def training():
 
     dataset_training, dataset_testing = processDataset(filepath)
 
-    accuracy, loss = processTrain(
-        dataset_training, dataset_testing, learning_rate, epoch, hidden_neuron, model_save_as, algorithm)
+    # get max for unnoramalize
+    max_config, min_config = getConfigValue(config)
 
-    result = {'error': False, 'accuracy': accuracy, 'loss': loss, 'filename': model_save_as}
+    accuracy, loss = processTrain(
+        dataset_training, dataset_testing, learning_rate, epoch, hidden_neuron, model_save_as, algorithm, max_config, min_config)
+
+    result = {'error': False, 'accuracy': accuracy,
+              'loss': loss, 'filename': model_save_as}
     return jsonify(result)
 
 
@@ -277,7 +307,9 @@ def predicting():
         "error": False,
         "inputs": inputs,
         "credentials": credentials,
-        "result": result.tolist()
+        "result": result.tolist(),
+        "max_config": model['max_config'][0],
+        "min_config": model['min_config'][0],
     }
 
     return jsonify(data)
