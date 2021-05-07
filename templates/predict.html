@@ -137,7 +137,7 @@
                     <div class="col">
                         <div class="alert alert-success">
                             <div class="text-center">
-                                <p class="lead">Tingkat aerosol</p>
+                                <p class="lead">Perkiraan tingkat aerosol</p>
                                 <p class="lead" id="resultreal"></p>
                             </div>
                         </div>
@@ -182,7 +182,7 @@
                 $('#iws_val').html($('#iws').val());
                 $('#prec_val').html($('#prec').val());
                 $('#iprec_val').html($('#iprec').val());
-                $('#resultreal').html((((data.max_config - data.min_config) * data.result[0][0]) + data.min_config).toFixed(3))
+                $('#resultreal').html('~' + (((data.max_config - data.min_config) * data.result[0][0]) + data.min_config).toFixed(3))
                 console.log(data);
             },
             error: function (data) {
