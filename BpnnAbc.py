@@ -177,8 +177,7 @@ class BpnnAbc:
         total = len(self.error_data)
 
         for i in range(total):
-            self.error_data[i][0][0]**2
-            sum_error += self.error_data[i][0][0]
+            sum_error += (self.error_data[i][0][0]**2)
 
         res = sum_error / total
 
